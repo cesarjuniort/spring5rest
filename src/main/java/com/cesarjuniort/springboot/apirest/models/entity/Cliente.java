@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -23,9 +24,29 @@ public class Cliente implements Serializable{
 	private String apellido;
 	private String email;
 	
+	@PrePersist
+	public void prePersits() {
+		createAt = new Date();
+	}
+	
+	
 	@Column(name="create_at")
 	@Temporal(TemporalType.DATE)
 	private Date createAt;
+
+	
+	@Column(name="last_modified", nullable=true)
+	@Temporal(TemporalType.DATE)
+	private Date lastModified;
+	
+	
+	public Date getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(Date lastModified) {
+		this.lastModified = lastModified;
+	}
 
 	public Long getId() {
 		return id;
