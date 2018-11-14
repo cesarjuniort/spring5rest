@@ -1,10 +1,14 @@
 package com.cesarjuniort.springboot.apirest.controllers;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,47 +25,86 @@ import com.cesarjuniort.springboot.apirest.models.services.IClienteService;
 // import com.cesarjuniort.springboot.apirest.models.entity.services.ClienteServiceImpl;
 
 @RestController
-@CrossOrigin(origins= {"http://localhost:4200"})
+@CrossOrigin(origins = { "http://localhost:4200" })
 @RequestMapping("/api")
 public class ClienteRestController {
-	
+
 	@Autowired
 	private IClienteService clienteService;
-	
+
 	@GetMapping("/clientes")
-	public List<Cliente> index(){
+	public List<Cliente> index() {
 		return clienteService.findAll();
 	}
-	
+
 	@GetMapping("/clientes/{id}")
-	public Cliente getById(@PathVariable Long id) {
-		return clienteService.findById(id);
+	public ResponseEntity<?> getById(@PathVariable Long id) {
+		Cliente cliente = null;
+		Map<String, Object> response = new HashMap<>();
+		try {
+			cliente = clienteService.findById(id);
+		} catch (DataAccessException e) {
+			response.put("errMsg", e.getMessage()); // TODO: refactor to a user friendly message - exception details
+													// should not propagate to the final user.
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		if (cliente == null) {
+			response.put("errMsg", "Record not found.");
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Cliente>(cliente, HttpStatus.OK);
 	}
-	
+
 	@PostMapping("/clientes")
-	@ResponseStatus(HttpStatus.CREATED)
-	public Cliente create(@RequestBody Cliente cliente) {
-		return clienteService.save(cliente);
+	public ResponseEntity<?> create(@RequestBody Cliente cliente) {
+		Cliente createdCliente = null;
+		Map<String, Object> response = new HashMap<>();
+		try {
+			createdCliente = clienteService.save(cliente);
+		} catch (DataAccessException e) {
+			response.put("message", "Unable to create the Cliente record.");
+			response.put("error", e.getMessage() + ": " + e.getMostSpecificCause().getMessage());
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		response.put("cliente", createdCliente);
+		response.put("message", "Record created successfully.");
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
-	
+
 	@PutMapping("/clientes/{id}")
-	@ResponseStatus(HttpStatus.CREATED)
-	public Cliente update(@RequestBody Cliente cliente, @PathVariable Long id) {
-		Cliente curr = clienteService.findById(id);
-		curr.setApellido(cliente.getApellido());
-		curr.setEmail(cliente.getEmail());
-		curr.setNombre(cliente.getNombre());
-		curr.setLastModified(new Date()); // just modifying on update.
-		return clienteService.save(curr);
+	public ResponseEntity<?> update(@RequestBody Cliente cliente, @PathVariable Long id) {
+		Map<String, Object> response = new HashMap<>();
+		Cliente curr = null;
+		try {
+			curr = clienteService.findById(id);
+			curr.setApellido(cliente.getApellido());
+			curr.setEmail(cliente.getEmail());
+			curr.setNombre(cliente.getNombre());
+			curr.setLastModified(new Date()); // just modifying on update.
+			response.put("cliente", clienteService.save(curr));
+			response.put("message", "Record updated successfully.");
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+		} catch (DataAccessException e) {
+			response.put("message", "Unable to create the Cliente record.");
+			response.put("error", e.getMessage() + ": " + e.getMostSpecificCause().getMessage());
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
 	}
-	
-	@DeleteMapping("/clientes/{id}") 
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable Long id) {
-		System.out.println("Deleting "+id);
-		clienteService.delete(id);
+
+	@DeleteMapping("/clientes/{id}")
+	// @ResponseStatus(HttpStatus.NO_CONTENT)
+	public ResponseEntity<?>  delete(@PathVariable Long id) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			clienteService.delete(id);
+			response.put("message", "Record deleted successfully.");
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+		} catch (DataAccessException e) {
+			response.put("message", "Unable to create the Cliente record");
+			response.put("error", e.getMessage() + ": " + e.getMostSpecificCause().getMessage());
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-	
-	
 
 }
