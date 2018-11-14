@@ -32,7 +32,7 @@ public class ClienteServiceImpl implements IClienteService {
 	@Transactional
 	public void delete(Long id) {
 		// TODO Auto-generated method stub
-		
+		clienteDao.deleteById(id);
 	}
 
 	@Override
