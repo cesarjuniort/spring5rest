@@ -50,6 +50,16 @@ public class Cliente implements Serializable{
 	private Date lastModified;
 	
 	
+	private String photo;
+	
+	public String getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
+	}
+
 	public Date getLastModified() {
 		return lastModified;
 	}

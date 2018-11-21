@@ -25,8 +25,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.FieldError;
 
 import com.cesarjuniort.springboot.apirest.models.entity.Cliente;
@@ -141,6 +142,14 @@ public class ClienteRestController {
 			response.put("errMsg", e.getMessage() + ": " + e.getMostSpecificCause().getMessage());
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	@PostMapping("/clientes/upload")
+	public ResponseEntity<?> upload(@RequestParam("photo") MultipartFile photo, @RequestParam("id") Long id){
+		Map<String, Object> response = new HashMap<>();
+		// write the file,
+		// update customer DB and return the created status.
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
 }
