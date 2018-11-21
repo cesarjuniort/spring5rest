@@ -1,5 +1,9 @@
 package com.cesarjuniort.springboot.apirest.controllers;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -147,7 +151,23 @@ public class ClienteRestController {
 	@PostMapping("/clientes/upload")
 	public ResponseEntity<?> upload(@RequestParam("photo") MultipartFile photo, @RequestParam("id") Long id){
 		Map<String, Object> response = new HashMap<>();
-		// write the file,
+		Cliente cliente = clienteService.findById(id);
+		if(!photo.isEmpty()) {
+			String filename = photo.getOriginalFilename();
+			Path filePath = Paths.get("uploads").resolve(filename).toAbsolutePath();
+			try {
+				Files.copy(photo.getInputStream(), filePath);
+			} catch (IOException e) {
+				response.put("message", "Unable to create the Cliente record");
+				response.put("errMsg", e.getMessage() );
+				return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			cliente.setPhoto(filename);
+			clienteService.save(cliente);
+			response.put("cliente", cliente);
+			response.put("message", "Record updated successfully.");
+			
+		}
 		// update customer DB and return the created status.
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
