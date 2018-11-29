@@ -6,6 +6,11 @@
 /src/test/javascript/PhantomJS*/
 
 ######################
+# The upload folder content.
+######################
+/uploads/
+
+######################
 # Node
 ######################
 /node/

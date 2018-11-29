@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -52,6 +54,8 @@ public class ClienteRestController {
 	@Autowired
 	private IClienteService clienteService;
 
+	private final Logger log = LoggerFactory.getLogger(ClienteRestController.class);
+	
 	@GetMapping("/clientes")
 	public List<Cliente> index() {
 		return clienteService.findAll();
@@ -163,6 +167,7 @@ public class ClienteRestController {
 		if(!photo.isEmpty()) {
 			String filename = UUID.randomUUID().toString()+"_"+ photo.getOriginalFilename();
 			Path filePath = Paths.get("uploads").resolve(filename).toAbsolutePath();
+			log.info(filePath.toString());
 			try {
 				Files.copy(photo.getInputStream(), filePath);
 			} catch (IOException e) {
