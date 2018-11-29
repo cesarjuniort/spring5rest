@@ -164,7 +164,7 @@ public class ClienteRestController {
 	public ResponseEntity<?> upload(@RequestParam("photo") MultipartFile photo, @RequestParam("id") Long id){
 		Map<String, Object> response = new HashMap<>();
 		Cliente cliente = clienteService.findById(id);
-		if(!photo.isEmpty()) {
+		if(cliente != null && !photo.isEmpty()) {
 			String filename = UUID.randomUUID().toString()+"_"+ photo.getOriginalFilename();
 			Path filePath = Paths.get("uploads").resolve(filename).toAbsolutePath();
 			log.info(filePath.toString());
@@ -210,7 +210,7 @@ public class ClienteRestController {
 			e.printStackTrace();
 		}
 		
-		if(!res.exists() && !res.isReadable()) {
+		if(res != null && !res.exists() && !res.isReadable()) {
 			throw new RuntimeException("Unable to load the image!");
 		}
 		
