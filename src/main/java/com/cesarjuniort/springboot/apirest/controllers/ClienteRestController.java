@@ -1,6 +1,8 @@
 package com.cesarjuniort.springboot.apirest.controllers;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,15 +11,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -138,6 +144,8 @@ public class ClienteRestController {
 	public ResponseEntity<?>  delete(@PathVariable Long id) {
 		Map<String, Object> response = new HashMap<>();
 		try {
+			Cliente cliente = clienteService.findById(id);
+			deleteLastClientePhoto(cliente);
 			clienteService.delete(id);
 			response.put("message", "Record deleted successfully.");
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
@@ -153,7 +161,7 @@ public class ClienteRestController {
 		Map<String, Object> response = new HashMap<>();
 		Cliente cliente = clienteService.findById(id);
 		if(!photo.isEmpty()) {
-			String filename = photo.getOriginalFilename();
+			String filename = UUID.randomUUID().toString()+"_"+ photo.getOriginalFilename();
 			Path filePath = Paths.get("uploads").resolve(filename).toAbsolutePath();
 			try {
 				Files.copy(photo.getInputStream(), filePath);
@@ -162,6 +170,7 @@ public class ClienteRestController {
 				response.put("errMsg", e.getMessage() );
 				return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
+			deleteLastClientePhoto(cliente);
 			cliente.setPhoto(filename);
 			clienteService.save(cliente);
 			response.put("cliente", cliente);
@@ -172,4 +181,41 @@ public class ClienteRestController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
+	private void deleteLastClientePhoto(Cliente cliente) {
+		
+		if(cliente == null) return;
+		
+		String deletePhoto = cliente.getPhoto();
+		if(deletePhoto != null && deletePhoto.length() >0) {
+			Path photoPath = Paths.get("uploads").resolve(deletePhoto).toAbsolutePath();
+			File deletePhotoFile = photoPath.toFile();
+			if(deletePhotoFile.exists() && deletePhotoFile.canRead()) {
+				deletePhotoFile.delete();
+			}
+		}
+	}
+	
+	@GetMapping("/uploads/img/{photoName:.+}")
+	public ResponseEntity<Resource> viewPicture(@PathVariable String photoName ){
+		Path filePath = Paths.get("uploads").resolve(photoName).toAbsolutePath();
+		Resource res = null;
+		try {
+		res = new UrlResource(filePath.toUri());
+		} catch(MalformedURLException e) {
+			e.printStackTrace();
+		}
+		
+		if(!res.exists() && !res.isReadable()) {
+			throw new RuntimeException("Unable to load the image!");
+		}
+		
+		HttpHeaders hdr = new HttpHeaders();
+		hdr.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename\""+res.getFilename()+"\"");
+		
+		
+		return new ResponseEntity<Resource>(res, hdr, HttpStatus.OK);
+		
+	}
+
 }
+ 
