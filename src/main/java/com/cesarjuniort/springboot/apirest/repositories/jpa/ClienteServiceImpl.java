@@ -1,4 +1,4 @@
-package com.cesarjuniort.springboot.apirest.models.services.jpa;
+package com.cesarjuniort.springboot.apirest.repositories.jpa;
 
 import java.util.List;
 
@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cesarjuniort.springboot.apirest.models.dao.IClienteDao;
 import com.cesarjuniort.springboot.apirest.models.entity.Cliente;
-import com.cesarjuniort.springboot.apirest.models.services.IClienteService;
+import com.cesarjuniort.springboot.apirest.repositories.dao.IClienteDao;
+import com.cesarjuniort.springboot.apirest.services.IClienteService;
 
 @Service
 public class ClienteServiceImpl implements IClienteService {

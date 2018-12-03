@@ -1,4 +1,4 @@
-package com.cesarjuniort.springboot.apirest.models.services;
+package com.cesarjuniort.springboot.apirest.services;
 
 import java.util.List;
 

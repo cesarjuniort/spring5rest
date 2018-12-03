@@ -43,8 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.FieldError;
 
 import com.cesarjuniort.springboot.apirest.models.entity.Cliente;
-import com.cesarjuniort.springboot.apirest.models.services.IClienteService;
-// import com.cesarjuniort.springboot.apirest.models.entity.services.ClienteServiceImpl;
+import com.cesarjuniort.springboot.apirest.services.IClienteService;
 
 @RestController
 @CrossOrigin(origins = { "http://localhost:4200" })
