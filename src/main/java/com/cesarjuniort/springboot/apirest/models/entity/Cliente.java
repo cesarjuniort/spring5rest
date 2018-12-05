@@ -8,9 +8,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name="clientes")
@@ -19,13 +23,50 @@ public class Cliente implements Serializable{
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
+	
+	@NotEmpty
+	@Size(min=4,max=200)
+	@Column(nullable = false)
 	private String nombre;
 	private String apellido;
+	
+	@Email
+	@Column(unique= true)
 	private String email;
+	
+	@PrePersist
+	public void prePersits() {
+		createAt = new Date();
+	}
+	
 	
 	@Column(name="create_at")
 	@Temporal(TemporalType.DATE)
 	private Date createAt;
+
+	
+	@Column(name="last_modified", nullable=true)
+	@Temporal(TemporalType.DATE)
+	private Date lastModified;
+	
+	
+	private String photo;
+	
+	public String getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
+	}
+
+	public Date getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(Date lastModified) {
+		this.lastModified = lastModified;
+	}
 
 	public Long getId() {
 		return id;
