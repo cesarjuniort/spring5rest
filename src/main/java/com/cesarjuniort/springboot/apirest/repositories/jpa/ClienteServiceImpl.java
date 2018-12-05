@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cesarjuniort.springboot.apirest.models.entity.Cliente;
-import com.cesarjuniort.springboot.apirest.repositories.dao.IClienteDao;
+import com.cesarjuniort.springboot.apirest.repositories.IClienteDao;
 import com.cesarjuniort.springboot.apirest.services.IClienteService;
 
 @Service

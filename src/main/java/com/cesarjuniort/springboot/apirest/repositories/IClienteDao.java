@@ -1,4 +1,4 @@
-package com.cesarjuniort.springboot.apirest.repositories.dao;
+package com.cesarjuniort.springboot.apirest.repositories;
 import com.cesarjuniort.springboot.apirest.models.entity.Cliente;
 
 import org.springframework.data.jpa.repository.JpaRepository;

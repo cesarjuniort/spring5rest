@@ -1,17 +1,11 @@
 package com.cesarjuniort.springboot.apirest.controllers;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -20,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,10 +33,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.validation.FieldError;
 
 import com.cesarjuniort.springboot.apirest.models.entity.Cliente;
 import com.cesarjuniort.springboot.apirest.services.IClienteService;
+import com.cesarjuniort.springboot.apirest.services.IUploadFileService;
 
 @RestController
 @CrossOrigin(origins = { "http://localhost:4200" })
@@ -52,6 +45,9 @@ public class ClienteRestController {
 
 	@Autowired
 	private IClienteService clienteService;
+	
+	@Autowired
+	private IUploadFileService fileService;
 
 	private final Logger log = LoggerFactory.getLogger(ClienteRestController.class);
 	
@@ -163,12 +159,10 @@ public class ClienteRestController {
 	public ResponseEntity<?> upload(@RequestParam("photo") MultipartFile photo, @RequestParam("id") Long id){
 		Map<String, Object> response = new HashMap<>();
 		Cliente cliente = clienteService.findById(id);
-		if(cliente != null && !photo.isEmpty()) {
-			String filename = UUID.randomUUID().toString()+"_"+ photo.getOriginalFilename();
-			Path filePath = Paths.get("uploads").resolve(filename).toAbsolutePath();
-			log.info(filePath.toString());
+		if(cliente != null && !photo.isEmpty()) {	
+			String filename = null;
 			try {
-				Files.copy(photo.getInputStream(), filePath);
+				filename = fileService.copy(photo);
 			} catch (IOException e) {
 				response.put("message", "Unable to create the Cliente record");
 				response.put("errMsg", e.getMessage() );
@@ -191,20 +185,15 @@ public class ClienteRestController {
 		
 		String deletePhoto = cliente.getPhoto();
 		if(deletePhoto != null && deletePhoto.length() >0) {
-			Path photoPath = Paths.get("uploads").resolve(deletePhoto).toAbsolutePath();
-			File deletePhotoFile = photoPath.toFile();
-			if(deletePhotoFile.exists() && deletePhotoFile.canRead()) {
-				deletePhotoFile.delete();
-			}
+			fileService.delete(deletePhoto);
 		}
 	}
 	
 	@GetMapping("/uploads/img/{photoName:.+}")
-	public ResponseEntity<Resource> viewPicture(@PathVariable String photoName ){
-		Path filePath = Paths.get("uploads").resolve(photoName).toAbsolutePath();
+	public ResponseEntity<Resource> viewPicture(@PathVariable String photoName ){		
 		Resource res = null;
 		try {
-		res = new UrlResource(filePath.toUri());
+			res = fileService.load(photoName);
 		} catch(MalformedURLException e) {
 			e.printStackTrace();
 		}
