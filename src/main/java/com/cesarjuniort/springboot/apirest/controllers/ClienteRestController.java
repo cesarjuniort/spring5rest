@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -62,6 +63,7 @@ public class ClienteRestController {
 		return clienteService.findAll(pageable);
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_USER"})
 	@GetMapping("/clientes/{id}")
 	public ResponseEntity<?> getById(@PathVariable Long id) {
 		Cliente cliente = null;
@@ -80,6 +82,7 @@ public class ClienteRestController {
 		return new ResponseEntity<Cliente>(cliente, HttpStatus.OK);
 	}
 
+	@Secured("ROLE_ADMIN")
 	@PostMapping("/clientes")
 	public ResponseEntity<?> create(@Valid @RequestBody Cliente cliente, BindingResult result) {
 		
@@ -117,6 +120,7 @@ public class ClienteRestController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
+	@Secured({"ROLE_ADMIN","ROLE_USER"})
 	@PutMapping("/clientes/{id}")
 	public ResponseEntity<?> update(@Valid @RequestBody Cliente cliente, @PathVariable Long id) {
 		Map<String, Object> response = new HashMap<>();
@@ -129,7 +133,8 @@ public class ClienteRestController {
 			curr.setLastModified(new Date()); // just modifying on update.
 			response.put("cliente", clienteService.save(curr));
 			response.put("message", "Record updated successfully.");
-			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+			log.info("Created Cliente, id: "+cliente.getId());
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);			
 		} catch (DataAccessException e) {
 			response.put("message", "Unable to create the Cliente record.");
 			response.put("errMsg", e.getMessage() + ": " + e.getMostSpecificCause().getMessage());
@@ -138,6 +143,7 @@ public class ClienteRestController {
 
 	}
 
+	@Secured("ROLE_ADMIN")
 	@DeleteMapping("/clientes/{id}")
 	// @ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<?>  delete(@PathVariable Long id) {
@@ -155,6 +161,7 @@ public class ClienteRestController {
 		}
 	}
 	
+	@Secured({"ROLE_ADMIN","ROLE_USER"})
 	@PostMapping("/clientes/upload")
 	public ResponseEntity<?> upload(@RequestParam("photo") MultipartFile photo, @RequestParam("id") Long id){
 		Map<String, Object> response = new HashMap<>();

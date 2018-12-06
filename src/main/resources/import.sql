@@ -8,3 +8,13 @@ INSERT INTO clientes (nombre, apellido, email, create_at) VALUES('Ralph', 'Johns
 INSERT INTO clientes (nombre, apellido, email, create_at) VALUES('John', 'Vlissides', 'john.vlissides@gmail.com', '2018-02-28');
 INSERT INTO clientes (nombre, apellido, email, create_at) VALUES('Dr. James', 'Gosling', 'james.gosling@gmail.com', '2018-03-03');
 INSERT INTO clientes (nombre, apellido, email, create_at) VALUES('Jade', 'Doe', 'jane.doe@gmail.com', '2018-03-06');
+
+/*    the same test password for both users = P@ssw0rd!     */
+
+INSERT INTO `user`( `username`,`enabled`,`password`) VALUES
+('cesar',1,'$2a$10$wzigki/z51JMjBgUr/xoAun8CbH5P.XKKoSRF6Jq8z9/ypZSHcXGO')
+,('admin',1,'$2a$10$jiZuOCwN/GNuVQz6w2EU.eibIPZfPNlOZc1fPASbFpodQFMfmFjpy');
+
+INSERT INTO `role`(`name`) VALUES ('ROLE_USER'),('ROLE_ADMIN');
+
+INSERT INTO `user_roles`(`user_id`,`roles_id`) VALUES (1,1),(2,1),(2,2);
